@@ -1,0 +1,45 @@
+#include "HeroAoE.h"
+#include <cmath>
+
+// Fungsi Jarak Euclidean - O(1)
+double getDistance(Position p1, Position p2) {
+    return sqrt(pow(p1.x - p2.x, 2) + pow(p1.y - p2.y, 2));
+}
+
+// Pendekatan Iteratif (BFS)
+void analyzeIterative(int startId, double radius, std::map<int, Unit>& units, std::map<int, std::vector<int> >& adj) {
+    std::queue<int> q;
+    std::set<int> visited;
+    
+    q.push(startId);
+    visited.insert(startId);
+    
+    while (!q.empty()) {
+        int currId = q.front(); q.pop();
+        
+        if (getDistance(units[startId].pos, units[currId].pos) <= radius) {
+            std::vector<int> neighbors = adj[currId];
+            for (size_t i = 0; i < neighbors.size(); i++) {
+                if (visited.find(neighbors[i]) == visited.end()) {
+                    visited.insert(neighbors[i]);
+                    q.push(neighbors[i]);
+                }
+            }
+        }
+    }
+}
+
+// Pendekatan Rekursif (DFS)
+void analyzeRecursive(int currId, int startId, double radius, std::map<int, Unit>& units, 
+                      std::map<int, std::vector<int> >& adj, std::set<int>& visited) {
+    visited.insert(currId);
+    
+    if (getDistance(units[startId].pos, units[currId].pos) <= radius) {
+        std::vector<int> neighbors = adj[currId];
+        for (size_t i = 0; i < neighbors.size(); i++) {
+            if (visited.find(neighbors[i]) == visited.end()) {
+                analyzeRecursive(neighbors[i], startId, radius, units, adj, visited);
+            }
+        }
+    }
+}
